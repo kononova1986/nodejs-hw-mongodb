@@ -47,7 +47,7 @@ export const startServer = () => {
 
   app.use((req, res) => {
     res.status(404).json({
-      message: `${req.url} not found`,
+      message: `No found`,
     });
   });
 
