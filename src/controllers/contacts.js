@@ -1,8 +1,12 @@
 import createHttpError from 'http-errors';
 import * as ContactsServices from '../servicer/contacts.js';
 
-export const getAllContactsControllers = async (req, res) => {
+export const getAllContactsControllers = async (req, res, next) => {
   const data = await ContactsServices.getAllContacts();
+  if (!data) {
+    next(createHttpError(404, 'Failed to get contacts'));
+    return;
+  }
   res.json({
     status: 200,
     message: 'Successfully found contacts',
@@ -33,7 +37,7 @@ export const addContactController = async (req, res) => {
   });
 };
 
-export const upsertContactController = async (req, res) => {
+export const upsertContactController = async (req, res, next) => {
   const { id } = req.params;
   const { isNew, data } = await ContactsServices.updateContact(
     { _id: id },
@@ -42,8 +46,11 @@ export const upsertContactController = async (req, res) => {
       upsert: true,
     }
   );
-
-  const status = isNew ? 200 : 201;
+  if (!data) {
+    next(createHttpError(404, 'Contact not found'));
+    return;
+  }
+  const status = isNew ? 201 : 200;
   res.status(status).json({
     status,
     message: 'Contact upsert successfully!',
