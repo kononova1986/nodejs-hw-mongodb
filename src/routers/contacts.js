@@ -37,6 +37,6 @@ contactsRouter.patch(
   validateBody(patchContactSchema),
   ctrlWrapper(patchContactController)
 );
-contactsRouter.delete('/:id', ctrlWrapper(deleteContactController));
+contactsRouter.delete('/:id', isValidId, ctrlWrapper(deleteContactController));
 
 export default contactsRouter;

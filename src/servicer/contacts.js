@@ -15,19 +15,20 @@ export const getAllContacts = async ({
     contactQuery.where('contactType').equals(filter.contactType);
   }
 
-  console.log('asdfghj', filter.contactType);
-  const data = await contactQuery
-    .skip(perPage * (page - 1))
-    .limit(perPage)
-    .sort({ [sortBy]: sortOrder });
-
   const count = await ContactsCollection.find()
     .merge(contactQuery)
     .countDocuments();
 
+  const data = await contactQuery
+    .skip((page - 1) * perPage)
+    .limit(perPage)
+    .sort({ [sortBy]: sortOrder })
+    .exec();
+
   const paginationData = calculatePaginationData({ count, perPage, page });
+
   return {
-    data,
+    data: data,
     page,
     perPage,
     totalItems: count,
