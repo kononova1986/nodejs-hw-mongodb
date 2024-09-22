@@ -39,7 +39,7 @@ export const getAllContacts = async ({
   };
 };
 
-export const getContact = filter => ContactsCollection.findById(filter);
+export const getContact = filter => ContactsCollection.findOne(filter);
 
 export const createContact = payload => ContactsCollection.create(payload);
 
