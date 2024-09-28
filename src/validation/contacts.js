@@ -17,4 +17,4 @@ export const patchContactSchema = Joi.object({
   age: Joi.number().integer().min(6).max(16),
   isFavourite: Joi.boolean(),
   contactType: Joi.string(),
-});
+}).min(1);

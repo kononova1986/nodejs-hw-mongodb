@@ -18,7 +18,7 @@ export const startServer = () => {
   app.use(cookieParser());
 
   app.use(router);
-
+  app.use(express.static('uploads'));
   app.use(notFoundHandler);
 
   app.use(errorHandler);

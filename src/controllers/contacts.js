@@ -4,6 +4,11 @@ import parsePaginationParams from '../utils/parsePaginationParams.js';
 import parseSortParams from '../utils/parseSortParams.js';
 import parseContactFilterParams from '../utils/filters/parseContactFilterParams.js';
 import { sortFilds } from '../db/models/Contact.js';
+import saveFileToUploadDir from '../utils/saveFileToUploadDir.js';
+import saveFileToCloudinary from '../utils/saveFileToCloudinary.js';
+import { env } from '../utils/env.js';
+
+const enableCloudinary = env('ENABLE_CLOUDINARY');
 
 export const getAllContactsControllers = async (req, res, next) => {
   const { perPage, page } = parsePaginationParams(req.query);
@@ -48,8 +53,22 @@ export const getAllContactsByIdController = async (req, res) => {
 };
 
 export const addContactController = async (req, res) => {
+  let photo;
+  if (req.file) {
+    if (enableCloudinary === 'true') {
+      photo = await saveFileToCloudinary(req.file, 'photo');
+    } else {
+      photo = await saveFileToUploadDir(req.file);
+    }
+  }
+
   const { _id: userId } = req.user;
-  const data = await ContactsServices.createContact({ ...req.body, userId });
+  const data = await ContactsServices.createContact({
+    ...req.body,
+    userId,
+    photo,
+  });
+
   res.status(201).json({
     status: 201,
     message: 'Contact add successfully!',
@@ -79,16 +98,26 @@ export const upsertContactController = async (req, res, next) => {
   });
 };
 
-export const patchContactController = async (req, res) => {
-  const { id } = req.params;
+export const patchContactController = async (req, res, next) => {
+  let photo;
+  if (req.file) {
+    if (enableCloudinary === 'true') {
+      photo = await saveFileToCloudinary(req.file, 'photo');
+    } else {
+      photo = await saveFileToUploadDir(req.file);
+    }
+  }
+
   const { _id: userId } = req.user;
-  const result = await ContactsServices.updateContact(
-    { _id: id, userId },
-    req.body
-  );
+  const result = await ContactsServices.createContact({
+    ...req.body,
+    userId,
+    photo,
+  });
 
   if (!result) {
-    throw createHttpError(404, `Contact with id=${id} not found`);
+    next(createHttpError(404, 'Contact not found'));
+    return;
   }
   res.json({
     status: 200,
