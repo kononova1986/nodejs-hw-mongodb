@@ -7,6 +7,7 @@ import notFoundHandler from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import loggerHandler from './utils/loggerHandler.js';
 
+
 import router from './routers/index.js';
 
 export const startServer = () => {
